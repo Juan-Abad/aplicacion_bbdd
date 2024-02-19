@@ -3,8 +3,10 @@ package com.juan.aplicacion_bbdd.ui.viewModel
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.juan.aplicacion_bbdd.data.database.entities.QuoteEntity
 import com.juan.aplicacion_bbdd.data.domain.GetQuotesUseCase
 import com.juan.aplicacion_bbdd.data.domain.GetRandomQuoteUseCase
+import com.juan.aplicacion_bbdd.data.domain.model.Quote
 import com.juan.aplicacion_bbdd.data.model.QuoteModel
 import com.juan.aplicacion_bbdd.data.model.QuoteProvider
 import kotlinx.coroutines.launch
@@ -17,19 +19,20 @@ class QuoteViewModel @Inject constructor(
     private val getRandomQuoteUseCase:GetRandomQuoteUseCase
 ) : ViewModel() {
 
-    val quoteModel = MutableLiveData<QuoteModel?>()
+    val quoteModel = MutableLiveData<Quote>()
     val isLoading = MutableLiveData<Boolean>()
 
     fun randomQuote() {
-//        val currentQuote: QuoteModel = QuoteProvider.random()
-//        quoteModel.postValue(currentQuote)
-        isLoading.postValue(true)
-        val quote = getRandomQuoteUseCase()
-        if(quote!=null) {
-            quoteModel.postValue(quote)
+        viewModelScope.launch {
+            isLoading.postValue(true)
+            val quote = getRandomQuoteUseCase()
+            if (quote != null) {
+                quoteModel.postValue(quote)
+            }
+            isLoading.postValue(false)
         }
-        isLoading.postValue(false)
     }
+
 
     fun onCreate() {
         isLoading.postValue(true)
